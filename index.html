@@ -39,7 +39,6 @@
 			<div class="slides">
 				<section>
 					<h2>Interagindo com Blockchain na Web</h2>
-					<h6>e algumas facilidades já existentes para devs</h6>
 				</section>
 
 				<section>
@@ -147,24 +146,33 @@ HttpProvider.prototype.prepareRequest = function () {
 						<h5 class="fragment fade-up">Se fosse só isso talvez</h5>
 					</section>
 					<section>
+						<h3>Além do RPC</h3>
 						<ul>
-							<li>binary encoding/decoding</li>
+							<li class="fragment fade-up">binary encoding/decoding</li>
 							<li class="fragment fade-up">uint256</li>
 							<li class="fragment fade-up">admin functions</li>
 						</ul>
 
 						<aside class="notes">
-							binary:
-							eth.compile.solidity				
+							<dd>
+								<dt>binary:</dt>
+								<dl>eth.compile.solidity</dl>
 
-							uint:
-							<ul>
-								<li>- 4/8byte word são muito restritos pra acomodar endereços e grandes valores de calculos criptograficos</li>
-						    <li>- ilimitado, como o do bitcoin, dificulta criar modelo de gas seguro</li>
-						    <li>- 32 bytes é suficiente para calculos, permite colocar um valor e um endereço no mesmo campo de indice para otimização. e não chega a ser extremamente ineficiente</li>
-						    <li>- https://github.com/ethereum/wiki/wiki/Design-Rationale (32 byte word size)</li>
-			        </ul>
+								<dt>uint:</dt>
+								<dl>
+									<ul>
+										<li>4/8byte word são muito restritos pra acomodar endereços e grandes valores de calculos criptograficos</li>
+								    <li>ilimitado, como o do bitcoin, dificulta criar modelo de gas seguro</li>
+								    <li>32 bytes é suficiente para calculos, permite colocar um valor e um endereço no mesmo campo de indice para otimização. e não chega a ser extremamente ineficiente</li>
+								    <li>https://github.com/ethereum/wiki/wiki/Design-Rationale (32 byte word size)</li>
+					        </ul>
+								</dl>
+
+								<dt>admin:</dt>
+								<dl>criação de endereços, assinaturas...</dl>								
+							</dd>
 						</aside>
+
 					</section>
 				</section>
 
