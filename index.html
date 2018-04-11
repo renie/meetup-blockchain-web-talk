@@ -1,0 +1,224 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<title>Interagindo com Blockchain na Web</title>
+
+		<meta name="description" content="Interagindo com Blockchain na Web"/>
+		<meta name="author" content="Renie Siqueira"/>
+
+		<meta name="apple-mobile-web-app-capable" content="yes"/>
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+
+		<link rel="stylesheet" href="css/reveal.css"/>
+		<link rel="stylesheet" href="css/theme/night.css"/>
+		<link rel="stylesheet" href="css/custom/custom.css"/>
+
+		<!-- Theme used for syntax highlighting of code -->
+		<link rel="stylesheet" href="lib/css/zenburn.css"/>
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+
+		<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+	</head>
+	<body>
+		<div class="reveal">
+			<div class="slides">
+				<section>
+					<h2>Interagindo com Blockchain na Web</h2>
+					<h6>e algumas facilidades já existentes para devs</h6>
+				</section>
+
+				<section>
+					<section>
+						<h3>JSON-RPC</h3>
+						<br><br>
+						<ul>
+							<li class="fragment fade-up" data-notes="Execução de uma função em outro endereço com a mesma facilidade de local.">RPC</li>
+							<li class="fragment fade-up">Ex.: SOAP (XML-RPC)</li>
+						</ul>
+					</section>
+
+					<section>
+						<h3>SOAP (XML-RPC) - WSDL</h3>
+						<pre>
+							<code data-trim>
+<wsdl:definitions xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://www.webserviceX.NET/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" targetNamespace="http://www.webserviceX.NET/">
+(...)
+<wsdl:portType name="StockQuoteSoap">
+	<wsdl:operation name="GetQuote">
+	  <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+			Get Stock quote for a company Symbol
+		</wsdl:documentation>
+	  <wsdl:input message="tns:GetQuoteSoapIn"/>
+	  <wsdl:output message="tns:GetQuoteSoapOut"/>
+	</wsdl:operation>
+</wsdl:portType>
+(...)
+</wsdl:definitions>
+							</code>
+						</pre>
+						<small>from: <a href="https://github.com/strongloop/strong-soap/blob/master/example/wsdls/stockquote.wsdl#L39">https://github.com/strongloop/strong-soap/blob/master/example/wsdls/stockquote.wsdl#L39</a></small>
+					</section>
+
+					<section>
+						<h3>SOAP (XML-RPC) - Conexão</h3>
+						<pre>
+							<code data-trim data-noescape>
+var soap = require('strong-soap').soap;
+var url = 'http://www.webservicex.net/stockquote.asmx?WSDL';
+
+var requestArgs = { symbol: 'IBM' };
+
+var options = {};
+soap.createClient(url, options, function(err, client) {
+  // OR client.StockQuote.StockQuoteSoap.GetQuote
+  var method = client['StockQuote']['StockQuoteSoap']['GetQuote'];
+  method(requestArgs, function(err, result, envelope, soapHeader) {
+    console.log('Response Envelope: \n' + envelope);
+    //'result' is the response body
+    console.log('Result: \n' + JSON.stringify(result));
+  });
+});
+							</code>
+						</pre>
+						<small>from: <a href="https://github.com/strongloop/strong-soap/blob/master/README.md#client">https://github.com/strongloop/strong-soap/blob/master/README.md#client</a></small>
+					</section>
+				</section>
+
+				<section>
+					<section>
+						Seria possível conectar a uma blockhain Ethereum via browser?
+					</section>
+					<section>
+						<h1>SIM!</h1>
+						<h3 class="fragment fade-up">e não é difícil...</h3>
+					</section>
+					<section>
+						<pre>
+							<code data-trim data-noescape>
+var HttpProvider = function (host, timeout, user, password, headers) {
+  this.host = host || 'http://localhost:8545';
+  this.timeout = timeout || 0;
+  this.user = user;
+  this.password = password;
+  this.headers = headers;
+};
+							</code>
+						</pre>
+					</section>
+					<section>
+						<pre>
+							<code data-trim data-noescape>
+HttpProvider.prototype.prepareRequest = function () {
+  var request = new XMLHttpRequest();
+  request.open('POST', this.host, async);
+
+  request.setRequestHeader('Content-Type', 'application/json');
+  
+  if (this.user && this.password) {
+    var auth = 'Basic ' + new Buffer(this.user 
+			+ ':' 
+			+ this.password).toString('base64');
+    request.setRequestHeader('Authorization', auth);
+  }
+  
+  return request;
+};
+							</code>
+						</pre>
+						<small class="fragment fade-up">from: <a href="https://github.com/ethereum/web3.js/blob/fb5ff9f46527a22a2ae5d650fdebac13755fe2bb/lib/web3/httpprovider.js#L42">https://github.com/ethereum/web3.js/blob/.../lib/web3/httpprovider.js#L42</a></small>
+					</section>
+					<section>
+						<h5>Fácil?</h5>
+						<h5 class="fragment fade-up">Se fosse só isso talvez</h5>
+					</section>
+					<section>
+						<ul>
+							<li>binary encoding/decoding</li>
+							<li class="fragment fade-up">uint256</li>
+							<li class="fragment fade-up">admin functions</li>
+						</ul>
+
+						<aside class="notes">
+							binary:
+							eth.compile.solidity				
+
+							uint:
+							<ul>
+								<li>- 4/8byte word são muito restritos pra acomodar endereços e grandes valores de calculos criptograficos</li>
+						    <li>- ilimitado, como o do bitcoin, dificulta criar modelo de gas seguro</li>
+						    <li>- 32 bytes é suficiente para calculos, permite colocar um valor e um endereço no mesmo campo de indice para otimização. e não chega a ser extremamente ineficiente</li>
+						    <li>- https://github.com/ethereum/wiki/wiki/Design-Rationale (32 byte word size)</li>
+			        </ul>
+						</aside>
+					</section>
+				</section>
+
+				<section>
+					<section>
+						<h5>Web3.js?</h5>
+						<h5>No repo Ethereum?</h5> 
+						<h5>O que é isso?</h5>
+					</section>
+					
+					<section>
+						<h3>web3.js</h3>
+						<ul>
+							<li class="fragment fade-up" data-notes="Para conexão local com geth ou parity. --rpc no geth">Implementa o RPC</li>
+							<li class="fragment fade-up" data-notes="W: comunicação entre dapps; S: storage;">Ethereum, Whisper e Swarm</li>
+							<li class="fragment fade-up">web3j, nethereum, ethereum-ruby, web3py</li>
+						</ul>
+					</section>
+				</section>
+
+				<section data-notes="Reforçar a questão de um server RPC">
+					<h3>Providers</h3>
+					<ul>
+						<li class="fragment fade-up" data-notes="http(address), ipc(socket/file)">Local</li>
+						<li class="fragment fade-up" data-notes="usa geth e parity">Etherscan</li>
+						<li class="fragment fade-up" data-notes="usa geth (provavelmente num docker custom)">Infura</li>
+						<li class="fragment fade-up" data-notes="usa Infura">Metamask</li>
+						<li class="fragment fade-up" data-notes="usa geth">Mist</li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>Exemplo real?</h2>
+					<h4>
+						<a href="http://myetherwallet.com" target="_blank">MyEtherWallet.com</a>
+					</h4>
+				</section>
+			</div>
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.js"></script>
+		<script>
+			// More info about config & dependencies:
+			// - https://github.com/hakimel/reveal.js#configuration
+			// - https://github.com/hakimel/reveal.js#dependencies
+			Reveal.initialize({
+				dependencies: [
+					{ src: 'plugin/markdown/marked.js' },
+					{ src: 'plugin/markdown/markdown.js' },
+					{ src: 'plugin/notes/notes.js', async: true },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } }
+				]
+			});
+		</script>
+	</body>
+</html>
